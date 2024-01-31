@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insert SQL Command</title>
+</head>
+<body>
+<h1>Insert SQL Command</h1>
+
+<form id="sqlForm">
+    <label for="sqlCommand">SQL Command:</label>
+    <input type="text" id="sqlCommand" name="sqlCommand" required>
+    <button type="button" onclick="submitSql()">Submit</button>
+</form>
+
+<div id="result"></div>
+
+<script>
+    function submitSql() {
+        // Získání SQL příkazu z formuláře
+        const sqlCommand = document.getElementById('sqlCommand').value;
+
+        // Odeslání SQL příkazu na server
+        fetch('http://localhost:8080/insertSql', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ sqlQuery: sqlCommand }),
+        })
+            .then(response => response.text())
+            .then(result => {
+                document.getElementById("result").innerText = result;
+            })
+            .catch(error => {
+                // Zpracování chyby při komunikaci se serverem
+                console.error('Error:', error);
+            });
+    }
+</script>
+</body>
+</html>
