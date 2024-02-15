@@ -3,7 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insert SQL Command</title>
+    <title>Most Similar SQL Commands</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 300px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: grey;
+            color: white;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        #sqlCommandsList li {
+            cursor: pointer;
+            padding: 8px;
+            border: 1px solid #ccc;
+            margin-bottom: 5px;
+            transition: background-color 0.3s;
+        }
+
+        #sqlCommandsList li:hover {
+            background-color: grey;
+            color: white;
+        }
+
+        #sqlCommandsList li a {
+            text-decoration: none;
+            color: #333;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+
 </head>
 <body>
 <h1>Insert SQL Command</h1>
@@ -14,27 +114,46 @@
     <button type="button" onclick="submitSql()">Submit</button>
 </form>
 
-<div id="result"></div>
+<h1>Similar SQL Commands</h1>
+<ul id="sqlCommandsList"></ul>
 
 <script>
     function submitSql() {
-        // Získání SQL příkazu z formuláře
+
         const sqlCommand = document.getElementById('sqlCommand').value;
 
-        // Odeslání SQL příkazu na server
-        fetch('http://localhost:8080/insertSql', {
+        fetch('http://localhost:8080/processSql', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ sqlQuery: sqlCommand }),
+            body: JSON.stringify({sqlQuery: sqlCommand}),
         })
-            .then(response => response.text())
-            .then(result => {
-                document.getElementById("result").innerText = result;
+            .then(response => response.json())
+            .then(data => {
+
+                const sqlCommandsList = document.getElementById("sqlCommandsList");
+
+                sqlCommandsList.innerHTML = "";
+
+                data.forEach(item => {
+                    const sqlElement = document.createElement("a");
+
+                    sqlElement.href = "https://stackoverflow.com/questions/" + item.questionId;
+                    sqlElement.target = "_blank";
+
+                    const listItem = document.createElement("li");
+                    listItem.textContent = item.sqlStatement;
+
+                    sqlElement.appendChild(listItem);
+
+                    sqlCommandsList.appendChild(sqlElement);
+                });
+
+                sqlCommandsList.style.maxHeight = "400px";
+                sqlCommandsList.style.overflowY = "auto";
             })
             .catch(error => {
-                // Zpracování chyby při komunikaci se serverem
                 console.error('Error:', error);
             });
     }
